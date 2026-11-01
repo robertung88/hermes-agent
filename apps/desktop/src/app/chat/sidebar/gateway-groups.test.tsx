@@ -7,7 +7,7 @@ import { SidebarProvider } from '@/components/ui/sidebar'
 import { $connectionsRegistry } from '@/store/connection-registry-state'
 import { $sidebarRowMeta, setSidebarGrouping } from '@/store/layout'
 import { $newChatRoute, $profiles } from '@/store/profile'
-import { $sessionProfilesUsage, $sessions } from '@/store/session'
+import { $sessionProfilesUsage, $sessions, $unreadFinishedSessionIds } from '@/store/session'
 import { makeSessionInfo } from '@/test/session-info'
 
 import { ChatSidebar } from './index'
@@ -40,6 +40,35 @@ const mount = () =>
   )
 
 afterEach(cleanup)
+
+it('carries each profile group its own attention rollup, and leaves quiet groups bare', () => {
+  mount()
+  act(() => {
+    $profiles.set([
+      { name: 'default', is_default: true },
+      { name: 'work', is_default: false }
+    ] as typeof $profiles.value)
+    setSidebarGrouping('profile')
+    $sessions.set([
+      makeSessionInfo({ id: 'home-1', connection_id: 'local', profile: 'default', title: 'Home session' }),
+      makeSessionInfo({ id: 'work-1', connection_id: 'local', profile: 'work', title: 'Work session' })
+    ])
+    // work-1 finished while default was selected: the finished-unread set is
+    // what the profile's square and this header both read.
+    $unreadFinishedSessionIds.set(['work-1'])
+  })
+
+  const quiet = screen.getByText('default').closest('[data-gateway-group]') as HTMLElement
+  const busy = screen.getByText('work').closest('[data-gateway-group]') as HTMLElement
+
+  expect(quiet.querySelector('[data-slot="profile-group-rollup"]')).toBeNull()
+  const rollup = busy.querySelector('[data-slot="profile-group-rollup"]')
+
+  expect(rollup?.textContent).toBe('1')
+  expect(rollup?.getAttribute('aria-label')).toContain('unread')
+
+  act(() => $unreadFinishedSessionIds.set([]))
+})
 
 it('keeps equal profile names on separate gateways and routes section creation and row navigation to their owner', () => {
   mount()

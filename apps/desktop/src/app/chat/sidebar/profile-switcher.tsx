@@ -46,7 +46,7 @@ import { Tip, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@
 import type { DesktopRegistryConnection } from '@/global'
 import { getProfileSoul, updateProfileSoul } from '@/hermes'
 import { useResizeObserver } from '@/hooks/use-resize-observer'
-import { type Translations, useI18n } from '@/i18n'
+import { useI18n } from '@/i18n'
 import { sortConnectionsForDisplay } from '@/lib/connection-display'
 import { triggerHaptic } from '@/lib/haptics'
 import { Loader2 } from '@/lib/icons'
@@ -107,6 +107,7 @@ import { buildRestGroups, countRestAgents, type FleetAgent, type FleetGroup, fle
 import { useLocalDeviceSwitch } from './local-device-switch'
 import { ProfileLaunchContextMenu, ProfileLaunchMenuSection } from './profile-launch-menu'
 import { ProfileRemoteOverrideDialog } from './profile-remote-override-dialog'
+import { profileStatusLabel } from './profile-status'
 import { useFleetRoster } from './use-fleet-roster'
 import { useProfilePrewarm } from './use-profile-prewarm'
 import { useProfileRailRefreshOnActive } from './use-profile-rail-refresh-on-active'
@@ -125,27 +126,6 @@ const PROFILE_DROPDOWN_THRESHOLD = 13
 // `profile-status-dot` slot lets tests (and tours) find it.
 function ProfileStatusDot({ summary }: { summary: ProfileDotSummary }) {
   return <span aria-hidden="true" className={sessionDotClassName(summary.state)} data-slot="profile-status-dot" />
-}
-
-/** The a11y/tooltip text for one square's summary — every non-zero count,
- *  most urgent first ("1 session needs your answer, 2 unread sessions"). The
- *  counts ride the accessible name so the state is never color-only. */
-function profileStatusLabel(p: Translations['profiles'], summary: ProfileDotSummary): string {
-  const parts: string[] = []
-
-  if (summary.needsInputCount > 0) {
-    parts.push(p.status.needsInput(summary.needsInputCount))
-  }
-
-  if (summary.workingCount > 0) {
-    parts.push(p.status.working(summary.workingCount))
-  }
-
-  if (summary.unreadCount > 0) {
-    parts.push(p.status.unread(summary.unreadCount))
-  }
-
-  return parts.join(', ')
 }
 
 /** One profile square's rollup of its sessions' shared dot state, keyed by the

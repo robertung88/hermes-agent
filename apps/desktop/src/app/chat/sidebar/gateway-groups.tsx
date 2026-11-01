@@ -40,6 +40,7 @@ import {
   toggleGatewayGroup
 } from './gateway-group-preferences'
 import { rankSessions } from './order'
+import { ProfileGroupRollup } from './profile-group-rollup'
 import { SIDEBAR_GROUP_PAGE } from './projects/model'
 import type { SidebarSessionGroup } from './projects/workspace-groups'
 import { WorkspaceAddButton, WorkspaceShowMoreButton } from './projects/workspace-header'
@@ -290,6 +291,13 @@ function GatewayProfileGroup({
               <Codicon name="remote" />
             )}
           </SidebarRowGrab>
+        }
+        meta={
+          // The profile's attention rollup, same summary the rail square paints.
+          // A gateway section row (no profile) has nothing to roll up.
+          group.profile && !embedded ? (
+            <ProfileGroupRollup connectionId={group.connectionId ?? null} profile={group.profile} />
+          ) : undefined
         }
         onPointerDown={event => {
           // The group's ⋯ menu portals out of this row's React subtree: gate the

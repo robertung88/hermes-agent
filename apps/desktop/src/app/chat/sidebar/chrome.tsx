@@ -253,6 +253,7 @@ export function SidebarGroupRow({
   className,
   label,
   lead,
+  meta,
   toggle,
   totals,
   ...props
@@ -260,6 +261,10 @@ export function SidebarGroupRow({
   actions?: React.ReactNode
   label: React.ReactNode
   lead: React.ReactNode
+  /** In-flow readout between the label and the fold caret — a profile's
+   *  attention rollup. Stays put on hover, unlike the token/cost totals, which
+   *  the action cluster deliberately covers. */
+  meta?: React.ReactNode
   toggle?: { ariaLabel: string; onToggle: () => void; open: boolean }
   totals?: SidebarGroupTotals
 }) {
@@ -297,6 +302,7 @@ export function SidebarGroupRow({
       <SidebarRowCluster className="min-w-0 flex-1">
         {lead}
         {label}
+        {meta}
         {toggle ? (
           <Tip label={toggle.ariaLabel}>
             <button
